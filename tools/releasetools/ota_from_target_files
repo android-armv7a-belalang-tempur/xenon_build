@@ -422,7 +422,17 @@ def WriteFullOTAPackage(input_zip, output_zip):
     script.RunBackup("backup")
     script.Unmount("/system")
 
-  script.ShowProgress(0.5, 0)
+  script.ShowProgress(0.2, 0)
+  script.Print("")
+  script.Print("************************************************")
+  script.Print("*                                              *")
+  script.Print("*             Team Horizon Presents            *")
+  script.Print("*                    XenonHD                   *")
+  script.Print("************************************************")
+  script.Print("")
+  script.Print("Prepare to broaden your horizon!")
+  script.Print("Welcome to Xenon HD") 
+
 
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
@@ -430,13 +440,17 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
+  script.Print("Wiping /system...")
   script.FormatPartition("/system")
+  script.Print("Installing system files...")
   script.Mount("/system")
   #script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
+  script.ShowProgress(0.4, 0)
 
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
+  script.ShowProgress(0.2, 0)
 
   boot_img = common.GetBootableImage("boot.img", "boot.img",
                                      OPTIONS.input_tmp, "BOOT")
@@ -449,7 +463,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
-  script.ShowProgress(0.2, 0)
 
   if OPTIONS.backuptool:
     script.ShowProgress(0.2, 10)
