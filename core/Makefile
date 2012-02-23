@@ -1306,9 +1306,10 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	   --override_device=$(override_device) \
 	   $(BUILT_TARGET_FILES_PACKAGE) $@
 
-.PHONY: otapackage
+.PHONY: otapackage optpkg
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
-
+optpkg: otapackage
+	$(hide) ./vendor/xenonhd/tools/squisher
 # -----------------------------------------------------------------
 # The update package
 
