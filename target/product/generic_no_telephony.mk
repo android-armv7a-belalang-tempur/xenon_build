@@ -34,12 +34,10 @@ PRODUCT_PACKAGES := \
     Keyguard \
     LatinIME \
     Launcher3 \
-    Music \
     MusicFX \
     OneTimeInitializer \
     PrintSpooler \
     Provision \
-    QuickSearchBox \
     Settings \
     SystemUI \
     TeleService \
