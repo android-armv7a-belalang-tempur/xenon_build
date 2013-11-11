@@ -824,7 +824,7 @@ def main(argv):
                                               "extra_script=",
                                               "worker_threads=",
                                               "aslr_mode=",
-                                              "override_device="],
+                                              "override_device=",
                                               "backup=",
                                               ],
                              extra_option_handler=option_handler)
