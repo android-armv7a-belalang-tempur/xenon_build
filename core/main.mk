@@ -507,8 +507,14 @@ ifneq ($(dont_bother),true)
 
 # Can't use first-makefiles-under here because
 # --mindepth=2 makes the prunes not work.
-subdir_makefiles := \
-	$(shell build/tools/findleaves.py --prune=$(OUT_DIR) --prune=.repo --prune=.git $(subdirs) Android.mk)
+MKSTORAGE := $(TOP)/makefile_storage
+ifneq "$(wildcard $(MKSTORAGE) )" ""
+	subdir_makefiles := \
+		$(shell build/tools/findleaves.py --prune=$(OUT_DIR) --prune=.repo --prune=.git $(MKSTORAGE) Android.mk)
+else
+	subdir_makefiles := \
+		$(shell build/tools/findleaves.py --prune=$(OUT_DIR) --prune=.repo --prune=.git $(subdirs) Android.mk)
+endif
 
 ifneq ($(QUIET),true)
 $(foreach mk, $(subdir_makefiles), $(info including $(mk) ...)$(eval include $(mk)))

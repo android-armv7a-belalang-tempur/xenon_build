@@ -1617,6 +1617,52 @@ function reposync() {
     esac
 }
 
+# symlink and mount *.mk in tmpfs RAM partition so we don't have to grind
+# IO at the start of each build
+function makemount() {
+    T=$(gettop)
+    DIRECTORY=$T/makefile_storage
+    if [ ! -d "$DIRECTORY" ]; then
+        mkdir -p $T/makefile_storage
+    sudo mount -t tmpfs -o size=6500M,mode=0777 tmpfs $T/makefile_storage
+    else
+        sudo mount -t tmpfs -o size=6500M,mode=0777 tmpfs $T/makefile_storage
+    fi
+
+    export MOUNTDIR=/$T/makefile_storage
+    export TARGET=/makefile_storage
+
+    find . -type d -print0 | xargs -0 bash -c 'for DIR in "$@"; 
+    do
+    echo "${MOUNTDIR}${DIR}"
+    mkdir -p "${MOUNTDIR}${DIR}"        
+    done' -
+
+
+    find . -type f -print0 |  xargs -0 bash -c 'for file in "$@"; 
+    do
+        ln -s  "${TARGET}${file}"  "${MOUNTDIR}${file}"
+        done' -
+}
+
+function fixup_common_out_dir() {
+    common_out_dir=$(get_build_var OUT_DIR)/target/common
+    target_device=$(get_build_var TARGET_DEVICE)
+    if [ ! -z $CM_FIXUP_COMMON_OUT ]; then
+        if [ -d ${common_out_dir} ] && [ ! -L ${common_out_dir} ]; then
+            mv ${common_out_dir} ${common_out_dir}-${target_device}
+            ln -s ${common_out_dir}-${target_device} ${common_out_dir}
+        else
+            [ -L ${common_out_dir} ] && rm ${common_out_dir}
+            mkdir -p ${common_out_dir}-${target_device}
+            ln -s ${common_out_dir}-${target_device} ${common_out_dir}
+        fi
+    else
+        [ -L ${common_out_dir} ] && rm ${common_out_dir}
+        mkdir -p ${common_out_dir}
+    fi
+}
+
 # Force JAVA_HOME to point to java 1.6 if it isn't already set
 function set_java_home() {
     if [ ! "$JAVA_HOME" ]; then
