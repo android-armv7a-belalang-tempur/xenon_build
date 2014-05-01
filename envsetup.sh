@@ -1624,7 +1624,7 @@ function makemount() {
     DIRECTORY=$T/makefile_storage
     if [ ! -d "$DIRECTORY" ]; then
         mkdir -p $T/makefile_storage
-    sudo mount -t tmpfs -o size=6500M,mode=0777 tmpfs $T/makefile_storage
+        sudo mount -t tmpfs -o size=6500M,mode=0777 tmpfs $T/makefile_storage
     else
         sudo mount -t tmpfs -o size=6500M,mode=0777 tmpfs $T/makefile_storage
     fi
