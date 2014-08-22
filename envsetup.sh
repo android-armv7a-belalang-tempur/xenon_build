@@ -1,19 +1,9 @@
 function hmm() {
 cat <<EOF
 Invoke ". build/envsetup.sh" from your shell to add the following functions to your environment:
-- lunch:    lunch <product_name>-<build_variant>
-- tapas:    tapas [<App1> <App2> ...] [arm|x86|mips] [eng|userdebug|user]
-- croot:    Changes directory to the top of the tree.
 - groot:    Changes directory to the root of the git project.
-- m:        Makes from the top of the tree.
-- mm:       Builds all of the modules in the current directory.
-- mmm:      Builds all of the modules in the supplied directories.
-- cgrep:    Greps on all local C/C++ files.
 - mgrep:    Greps on all local Makefiles.
-- jgrep:    Greps on all local Java files.
-- resgrep:  Greps on all local res/*.xml files.
 - gcd:      cd's to a git project in the build tree.
-- godir:    Go to the directory containing a file.
 - mka:      Builds using SCHED_BATCH on all processors
 - mbot:     Builds for all devices using the psuedo buildbot
 - mkapush:  Same as mka with the addition of adb pushing to the device.
@@ -22,6 +12,22 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - taco:     Builds for a single device using the pseudo buildbot
 - reposync: Parallel repo sync using ionice and SCHED_BATCH
 - addaosp:  Add git remote for the AOSP repository
+- lunch:   lunch <product_name>-<build_variant>
+- tapas:   tapas [<App1> <App2> ...] [arm|x86|mips|armv5] [eng|userdebug|user]
+- croot:   Changes directory to the top of the tree.
+- cout:    Changes directory to out.
+- m:       Makes from the top of the tree.
+- mm:      Builds all of the modules in the current directory, but not their dependencies.
+- mmm:     Builds all of the modules in the supplied directories, but not their dependencies.
+- mma:     Builds all of the modules in the current directory, and their dependencies.
+- mmma:    Builds all of the modules in the supplied directories, and their dependencies.
+- mmp:     Builds all of the modules in the current directory and pushes them to the device.
+- mmmp:    Builds all of the modules in the supplied directories and pushes them to the device.
+- cgrep:   Greps on all local C/C++ files.
+- jgrep:   Greps on all local Java files.
+- resgrep: Greps on all local res/*.xml files.
+- godir:   Go to the directory containing a file.
+
 Look at the source to view more functions. The complete list is:
 EOF
     T=$(gettop)
@@ -221,8 +227,6 @@ function set_stuff_for_environment()
     set_java_home
     setpaths
     set_sequence_number
-
-    export ANDROID_BUILD_TOP=$(gettop)
 }
 
 function set_sequence_number()
@@ -465,9 +469,9 @@ function print_lunch_menu()
     local choice
     for choice in ${LUNCH_MENU_CHOICES[@]}
     do
-        echo "     $i. $choice"
+        echo " $i. $choice "
         i=$(($i+1))
-    done
+    done | column
 
     if [ "z${XENONHD_DEVICES_ONLY}" != "z" ]; then
        echo "... and don't forget the bacon!"
@@ -480,12 +484,23 @@ function brunch()
 {
     breakfast $*
     if [ $? -eq 0 ]; then
-        time mka bacon
+mka bacon
     else
-        echo "No such item in brunch menu. Try 'breakfast'"
+echo "No such item in brunch menu. Try 'breakfast'"
         return 1
     fi
-    return $?
+return $?
+}
+
+function mka() {
+    case `uname -s` in
+        Darwin)
+            make -j `sysctl hw.ncpu|cut -d" " -f2` "$@"
+            ;;
+        *)
+            schedtool -B -n 1 -e ionice -n 1 make -j$(cat /proc/cpuinfo | grep "^processor" | wc -l) "$@"
+            ;;
+    esac
 }
 
 function breakfast()
@@ -662,42 +677,58 @@ function tapas()
     printconfig
 }
 
-function eat()
+# Credit for color strip sed: http://goo.gl/BoIcm
+function mmmp()
 {
-    if [ "$OUT" ] ; then
-        MODVERSION=`sed -n -e'/ro\.xehd\.version/s/^.*=//p' $OUT/system/build.prop`
-        ZIPFILE=$MODVERSION.zip
-        ZIPPATH=$OUT/$ZIPFILE
-        if [ ! -f $ZIPPATH ] ; then
-            echo "Nothing to eat"
-            return 1
-        fi
-        adb start-server # Prevent unexpected starting server message from adb get-state in the next line
-        if [ $(adb get-state) != device -a $(adb shell busybox test -e /sbin/recovery 2> /dev/null; echo $?) != 0 ] ; then
-            echo "No device is online. Waiting for one..."
-            echo "Please connect USB and/or enable USB debugging"
-            until [ $(adb get-state) = device -o $(adb shell busybox test -e /sbin/recovery 2> /dev/null; echo $?) = 0 ];do
-                sleep 1
-            done
-            echo "Device Found.."
-        fi
-        echo "Pushing $ZIPFILE to device"
-        if adb push $ZIPPATH /sdcard/ ; then
-            cat << EOF > /tmp/command
---update_package=/sdcard/$ZIPFILE
-EOF
-            if adb push /tmp/command /cache/recovery/ ; then
-                echo "Rebooting into recovery for installation"
-                adb reboot recovery
-            fi
-            rm /tmp/command
-        fi
-    else
-        echo "Nothing to eat"
+    if [[ $# < 1 || $1 == "--help" || $1 == "-h" ]]; then
+        echo "mmmp [make arguments] <path-to-project>"
         return 1
     fi
-    return $?
+
+    # Get product name from cm_<product>
+    PRODUCT=`echo $TARGET_PRODUCT | tr "_" "\n" | tail -n 1`
+
+    adb start-server # Prevent unexpected starting server message from adb get-state in the next line
+    if [ $(adb get-state) != device -a $(adb shell busybox test -e /sbin/recovery 2> /dev/null; echo $?) != 0 ] ; then
+        echo "No device is online. Waiting for one..."
+        echo "Please connect USB and/or enable USB debugging"
+        until [ $(adb get-state) = device -o $(adb shell busybox test -e /sbin/recovery 2> /dev/null; echo $?) = 0 ];do
+            sleep 1
+        done
+        echo "Device Found.."
+    fi
+
+    adb root &> /dev/null
+    sleep 0.3
+    adb wait-for-device &> /dev/null
+    sleep 0.3
+    adb remount &> /dev/null
+
+    mmm $* | tee .log
+
+    # Install: <file>
+    LOC=$(cat .log | sed -r 's/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g' | grep 'Install' | cut -d ':' -f 2)
+
+    # Copy: <file>
+    LOC=$LOC $(cat .log | sed -r 's/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g' | grep 'Copy' | cut -d ':' -f 2)
+
+    for FILE in $LOC; do
+        # Get target file name (i.e. system/bin/adb)
+        TARGET=$(echo $FILE | sed "s/\/$PRODUCT\//\n/" | tail -n 1)
+
+        # Don't send files that are not in /system.
+        if ! echo $TARGET | egrep '^system\/' > /dev/null ; then
+            continue
+        else
+            echo "Pushing: $TARGET"
+            adb push $FILE $TARGET
+        fi
+    done
+    rm -f .log
+    return 0
 }
+
+alias mmp='mmmp .'
 
 function gettop
 {
@@ -932,6 +963,15 @@ function gcd()
     fi
 
     cd "$T/$goto"
+}
+
+function cout()
+{
+    if [  "$OUT" ]; then
+        cd $OUT
+    else
+        echo "Couldn't locate out directory.  Try setting OUT."
+    fi
 }
 
 function cproj()
@@ -1676,6 +1716,13 @@ function set_java_home() {
         esac
     fi
 }
+
+function repopick() {
+    set_stuff_for_environment
+    T=$(gettop)
+    $T/build/tools/repopick.py $@
+}
+
 
 # Print colored exit condition
 function pez {

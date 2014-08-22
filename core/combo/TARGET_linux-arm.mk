@@ -78,63 +78,41 @@ endif
 
 TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
+ifeq ($(TARGET_USE_O3),true)
 TARGET_arm_CFLAGS :=    -O3 \
                         -fomit-frame-pointer \
-                        -fstrict-aliasing \
+                        -fstrict-aliasing    \
+                        -funswitch-loops
+else
+TARGET_arm_CFLAGS :=    -Os \
+                        -fomit-frame-pointer \
+                        -fstrict-aliasing    \
+                        -fno-zero-initialized-in-bss \
                         -funswitch-loops \
                         -fno-tree-vectorize \
-                        -fno-inline-functions \
-                        -Wstrict-aliasing=3 \
-                        -Werror=strict-aliasing \
-                        -fgcse-after-reload \
-                        -fno-ipa-cp-clone \
-                        -fno-vect-cost-model \
-                        -Wno-error=unused-parameter \
-                        -Wno-error=unused-but-set-variable \
-                        -funsafe-loop-optimizations 
-
-# THUMB2 specific
-TARGET_thumb_CFLAGS :=  -mthumb \
-                        -Os \
-                        -fomit-frame-pointer \
-                        -fstrict-aliasing \
-                        -fno-tree-vectorize \
-                        -fno-inline-functions \
-                        -fno-unswitch-loops \
-                        -Wstrict-aliasing=3 \
-                        -Werror=strict-aliasing \
-                        -fgcse-after-reload \
-                        -fno-ipa-cp-clone \
-                        -fno-vect-cost-model \
-                        -Wno-error=unused-parameter \
-                        -Wno-error=unused-but-set-variable
-
-ifneq ($(filter 4.8 4.8.% 4.9 4.9.%, $(TARGET_GCC_VERSION)),)
-TARGET_arm_CFLAGS +=  -Wno-unused-parameter \
-                      -Wno-unused-value \
-                      -Wno-unused-function
-                      -funsafe-math-optimizations \
-                        $(TARGET_THUMB_STRICT) $(STRICT_ALIASING_WARNINGS)
-
-# Workaround for broken video recording when compiling thumb with -Os on FLO and HH
-ifeq ($(AN_ASSHAT_HAS_BROKEN_MY_CAMERA_SOURCE),true)
-  ifeq ($(strip $(BONE_STOCK)),)
-    # Manually disable the -Os flags in -O2 excluding the problem suspects -fno-reorder*
-    # These flags cannot be enabled globally with -Os or the compiler will error where -Os and -Werror are assigned.
-    TARGET_thumb_CFLAGS +=  -O2 \
-                            -fno-align-functions \
-                            -fno-align-jumps \
-                            -fno-align-loops \
-                            -fno-align-labels \
-                            -fno-prefetch-loop-arrays
-                    #       -fno-reorder-blocks
-                    #       -fno-reorder-blocks-and-partition
-  endif
-endif
-
-TARGET_thumb_CFLAGS +=  -Wno-unused-parameter \
+                        -Wno-unused-parameter \
                         -Wno-unused-value \
                         -Wno-unused-function
+endif
+
+# Modules can choose to compile some source as thumb.
+ifeq ($(TARGET_USE_O3),true)
+    TARGET_thumb_CFLAGS :=  -mthumb \
+                            -O3 \
+                            -fomit-frame-pointer \
+                            -fno-strict-aliasing \
+                            -Wstrict-aliasing=2 \
+                            -Werror=strict-aliasing \
+                            -fno-tree-vectorize \
+                            -funsafe-math-optimizations \
+                            -Wno-unused-parameter \
+                            -Wno-unused-value \
+                            -Wno-unused-function
+else
+    TARGET_thumb_CFLAGS :=  -mthumb \
+                            -Os \
+                            -fomit-frame-pointer \
+                            -fno-strict-aliasing
 endif
 
 # Set FORCE_ARM_DEBUGGING to "true" in your buildspec.mk
@@ -160,6 +138,14 @@ else
 endif
 
 android_config_h := $(call select-android-config-h,linux-arm)
+
+ifeq ($(TARGET_DISABLE_ARM_PIE),true)
+   PIE_GLOBAL_CFLAGS :=
+   PIE_EXECUTABLE_TRANSFORM := -Wl,-T,$(BUILD_SYSTEM)/armelf.x
+else
+   PIE_GLOBAL_CFLAGS := -fPIE
+   PIE_EXECUTABLE_TRANSFORM := -fPIE -pie
+endif
 
 TARGET_GLOBAL_CFLAGS += \
 			-msoft-float -fpic $(PIE_GLOBAL_CFLAGS) \

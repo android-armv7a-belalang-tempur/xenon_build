@@ -461,11 +461,12 @@ endif  # need_compile_java
 cleantarget := clean-$(LOCAL_MODULE)
 $(cleantarget) : PRIVATE_MODULE := $(LOCAL_MODULE)
 $(cleantarget) : PRIVATE_CLEAN_FILES := \
+    $(PRIVATE_CLEAN_FILES) \
     $(LOCAL_BUILT_MODULE) \
     $(LOCAL_INSTALLED_MODULE) \
     $(intermediates)
 $(cleantarget)::
-	@echo "Clean: $(PRIVATE_MODULE)"
+	@echo -e ${CL_GRN}"Clean:"${CL_RST}" $(PRIVATE_MODULE)"
 	$(hide) rm -rf $(PRIVATE_CLEAN_FILES)
 
 ###########################################################
@@ -525,16 +526,12 @@ ifndef LOCAL_UNINSTALLABLE_MODULE
 $(LOCAL_INSTALLED_MODULE): PRIVATE_POST_INSTALL_CMD := $(LOCAL_POST_INSTALL_CMD)
 ifneq ($(LOCAL_ACP_UNAVAILABLE),true)
 $(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE) | $(ACP)
-ifeq ($(OUT_DIR),out)
-	@echo -e ${CL_INS}"Install: $(ANDROID_BUILD_TOP)/$@"${CL_RST}
-else
-	@echo -e ${CL_INS}"Install: $@"${CL_RST}
-endif
+	@echo -e ${CL_CYN}"Install: $@"${CL_RST}
 	$(copy-file-to-new-target)
 	$(PRIVATE_POST_INSTALL_CMD)
 else
 $(LOCAL_INSTALLED_MODULE): $(LOCAL_BUILT_MODULE)
-	@echo -e ${CL_INS}"Install: $@"${CL_RST}
+	@echo -e ${CL_CYN}"Install: $@"${CL_RST}
 	$(copy-file-to-target-with-cp)
 endif
 

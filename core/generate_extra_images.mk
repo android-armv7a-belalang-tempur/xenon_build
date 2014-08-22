@@ -140,9 +140,38 @@ endif
 
 
 #----------------------------------------------------------------------
+# Generate extra userdata images (for variants with multiple mmc sizes)
+#----------------------------------------------------------------------
+ifneq ($(BOARD_USERDATAEXTRAIMAGE_PARTITION_SIZE),)
+
+ifndef BOARD_USERDATAEXTRAIMAGE_PARTITION_NAME
+  BOARD_USERDATAEXTRAIMAGE_PARTITION_NAME := extra
+endif
+
+BUILT_USERDATAEXTRAIMAGE_TARGET := $(PRODUCT_OUT)/userdata_$(BOARD_USERDATAEXTRAIMAGE_PARTITION_NAME).img
+
+define build-userdataextraimage-target
+    $(call pretty,"Target EXTRA userdata fs image: $(INSTALLED_USERDATAEXTRAIMAGE_TARGET)")
+    @mkdir -p $(TARGET_OUT_DATA)
+    $(hide) $(MKEXTUSERIMG) -s $(TARGET_OUT_DATA) $@ ext4 data $(BOARD_USERDATAEXTRAIMAGE_PARTITION_SIZE)
+    $(hide) chmod a+r $@
+    $(hide) $(call assert-max-image-size,$@,$(BOARD_USERDATAEXTRAIMAGE_PARTITION_SIZE),yaffs)
+endef
+
+INSTALLED_USERDATAEXTRAIMAGE_TARGET := $(BUILT_USERDATAEXTRAIMAGE_TARGET)
+$(INSTALLED_USERDATAEXTRAIMAGE_TARGET): $(INSTALLED_USERDATAIMAGE_TARGET)
+	$(build-userdataextraimage-target)
+
+ALL_DEFAULT_INSTALLED_MODULES += $(INSTALLED_USERDATAEXTRAIMAGE_TARGET)
+ALL_MODULES.$(LOCAL_MODULE).INSTALLED += $(INSTALLED_USERDATAEXTRAIMAGE_TARGET)
+
+endif
+
+
+#----------------------------------------------------------------------
 # Generate NAND images
 #----------------------------------------------------------------------
-ifeq ($(call is-board-platform-in-list,msm7627a msm7630_surf),true)
+ifeq ($(call is-board-platform-in-list,msm7x27a msm7x30),true)
 
 2K_NAND_OUT := $(PRODUCT_OUT)/2k_nand_images
 4K_NAND_OUT := $(PRODUCT_OUT)/4k_nand_images
@@ -257,28 +286,28 @@ endef
 
 $(INSTALLED_4K_BOOTIMAGE_TARGET): $(MKBOOTIMG) $(INSTALLED_BOOTIMAGE_TARGET)
 	$(hide) $(call build-nand-bootimage,$(4K_NAND_OUT),$(INTERNAL_4K_BOOTIMAGE_ARGS),$(INSTALLED_4K_BOOTIMAGE_TARGET))
-ifeq ($(call is-board-platform,msm7627a),true)
+ifeq ($(call is-board-platform,msm7x27a),true)
 	$(hide) $(call build-nand-bootimage,$(2K_NAND_OUT),$(INTERNAL_2K_BOOTIMAGE_ARGS),$(INSTALLED_2K_BOOTIMAGE_TARGET))
 	$(hide) $(call build-nand-bootimage,$(BCHECC_OUT),$(INTERNAL_4K_BOOTIMAGE_ARGS),$(INSTALLED_BCHECC_BOOTIMAGE_TARGET))
 endif # is-board-platform
 
 $(INSTALLED_4K_SYSTEMIMAGE_TARGET): $(MKYAFFS2) $(INSTALLED_SYSTEMIMAGE)
 	$(hide) $(call build-nand-systemimage,$(4K_NAND_OUT),$(INTERNAL_4K_MKYAFFS2_FLAGS),$(INSTALLED_4K_SYSTEMIMAGE_TARGET))
-ifeq ($(call is-board-platform,msm7627a),true)
+ifeq ($(call is-board-platform,msm7x27a),true)
 	$(hide) $(call build-nand-systemimage,$(2K_NAND_OUT),$(INTERNAL_2K_MKYAFFS2_FLAGS),$(INSTALLED_2K_SYSTEMIMAGE_TARGET))
 	$(hide) $(call build-nand-systemimage,$(BCHECC_OUT),$(INTERNAL_BCHECC_MKYAFFS2_FLAGS),$(INSTALLED_BCHECC_SYSTEMIMAGE_TARGET))
 endif # is-board-platform
 
 $(INSTALLED_4K_USERDATAIMAGE_TARGET): $(MKYAFFS2) $(INSTALLED_USERDATAIMAGE_TARGET)
 	$(hide) $(call build-nand-userdataimage,$(4K_NAND_OUT),$(INTERNAL_4K_MKYAFFS2_FLAGS),$(INSTALLED_4K_USERDATAIMAGE_TARGET))
-ifeq ($(call is-board-platform,msm7627a),true)
+ifeq ($(call is-board-platform,msm7x27a),true)
 	$(hide) $(call build-nand-userdataimage,$(2K_NAND_OUT),$(INTERNAL_2K_MKYAFFS2_FLAGS),$(INSTALLED_2K_USERDATAIMAGE_TARGET))
 	$(hide) $(call build-nand-userdataimage,$(BCHECC_OUT),$(INTERNAL_BCHECC_MKYAFFS2_FLAGS),$(INSTALLED_BCHECC_USERDATAIMAGE_TARGET))
 endif # is-board-platform
 
 $(INSTALLED_4K_PERSISTIMAGE_TARGET): $(MKYAFFS2) $(INSTALLED_PERSISTIMAGE_TARGET)
 	$(hide) $(call build-nand-persistimage,$(4K_NAND_OUT),$(INTERNAL_4K_MKYAFFS2_FLAGS),$(INSTALLED_4K_PERSISTIMAGE_TARGET))
-ifeq ($(call is-board-platform,msm7627a),true)
+ifeq ($(call is-board-platform,msm7x27a),true)
 	$(hide) $(call build-nand-persistimage,$(2K_NAND_OUT),$(INTERNAL_2K_MKYAFFS2_FLAGS),$(INSTALLED_2K_PERSISTIMAGE_TARGET))
 	$(hide) $(call build-nand-persistimage,$(BCHECC_OUT),$(INTERNAL_BCHECC_MKYAFFS2_FLAGS),$(INSTALLED_BCHECC_PERSISTIMAGE_TARGET))
 endif # is-board-platform
@@ -287,7 +316,7 @@ $(INSTALLED_4K_RECOVERYIMAGE_TARGET): $(MKBOOTIMG) $(INSTALLED_RECOVERYIMAGE_TAR
 	$(hide) cp -f $(recovery_nand_fstab) $(TARGET_RECOVERY_ROOT_OUT)/etc
 	$(MKBOOTFS) $(TARGET_RECOVERY_ROOT_OUT) | $(MINIGZIP) > $(recovery_ramdisk)
 	$(hide) $(call build-nand-bootimage,$(4K_NAND_OUT),$(INTERNAL_4K_RECOVERYIMAGE_ARGS),$(INSTALLED_4K_RECOVERYIMAGE_TARGET))
-ifeq ($(call is-board-platform,msm7627a),true)
+ifeq ($(call is-board-platform,msm7x27a),true)
 	$(hide) $(call build-nand-bootimage,$(2K_NAND_OUT),$(INTERNAL_2K_RECOVERYIMAGE_ARGS),$(INSTALLED_2K_RECOVERYIMAGE_TARGET))
 	$(hide) $(call build-nand-bootimage,$(BCHECC_OUT),$(INTERNAL_4K_RECOVERYIMAGE_ARGS),$(INSTALLED_BCHECC_RECOVERYIMAGE_TARGET))
 endif # is-board-platform

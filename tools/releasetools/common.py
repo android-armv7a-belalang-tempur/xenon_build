@@ -187,7 +187,7 @@ def LoadRecoveryFSTab(zip, fstab_version):
       line = line.strip()
       if not line or line.startswith("#"): continue
       pieces = line.split()
-      if not (3 <= len(pieces) <= 4):
+      if not (3 <= len(pieces) <= 9):
         raise ValueError("malformed recovery.fstab line: \"%s\"" % (line,))
 
       p = Partition()
@@ -196,7 +196,7 @@ def LoadRecoveryFSTab(zip, fstab_version):
       p.device = pieces[2]
       p.length = 0
       options = None
-      if len(pieces) >= 4:
+      if len(pieces) >= 4 and pieces[3] != 'NULL':
         if pieces[3].startswith("/"):
           p.device2 = pieces[3]
           if len(pieces) >= 5:
@@ -501,6 +501,7 @@ def CheckSize(data, target, info_dict):
   mount_point = "/" + target
 
   if info_dict["fstab"]:
+    if mount_point == "/userdata_extra": mount_point = "/data"
     if mount_point == "/userdata": mount_point = "/data"
     p = info_dict["fstab"][mount_point]
     fs_type = p.fs_type
@@ -971,7 +972,8 @@ PARTITION_TYPES = { "bml": "BML",
                     "f2fs": "EMMC",
                     "mtd": "MTD",
                     "yaffs2": "MTD",
-                    "vfat": "EMMC" }
+                    "vfat": "EMMC"
+}
 
 def GetTypeAndDevice(mount_point, info):
   fstab = info["fstab"]
