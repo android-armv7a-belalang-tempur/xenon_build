@@ -12,30 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-GRAPHITE_FLAGS := \
-	-fgraphite \
-	-fgraphite-identity \
-	-floop-flatten \
-	-floop-parallelize-all \
-	-ftree-loop-linear \
-	-floop-interchange \
-	-floop-strip-mine \
-	-floop-block \
-	-Wno-error=maybe-uninitialized
-
-# Force disable some modules that are not compatible with graphite flags
-LOCAL_DISABLE_GRAPHITE := \
-	libunwind \
-	libFFTEm \
-	libicui18n \
-	libskia \
-	libvpx \
-	libmedia_jni \
-	libstagefright_mp3dec \
-	libart \
-	mdnsd \
-	libwebrtc_spl \
-	third_party_WebKit_Source_core_webcore_svg_gyp
 
 ifneq (1,$(words $(filter $(LOCAL_DISABLE_GRAPHITE),$(LOCAL_MODULE))))
   ifdef LOCAL_CONLYFLAGS

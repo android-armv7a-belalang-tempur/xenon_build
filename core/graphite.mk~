@@ -12,67 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 <<<<<<< HEAD
-GRAPHITE_FLAGS := $(call cc-option,$(-fgraphite -floop-flatten -floop-parallelize-all -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block))
-
-# Only use graphite if using SaberMod toolchain.  Allow any version of SaberMod with the wildcard symbol.
-ifneq ($(filter (SaberMod%), $(shell $(TARGET_CC) --version)),)
-ifdef LOCAL_CFLAGS
-LOCAL_CFLAGS += $(GRAPHITE_FLAGS)
-else
-LOCAL_CFLAGS := $(GRAPHITE_FLAGS)
-endif
-
-ifdef LOCAL_CPPFLAGS
-LOCAL_CPPFLAGS += $(GRAPHITE_FLAGS)
-else
-LOCAL_CPPFLAGS := $(GRAPHITE_FLAGS)
-endif
-
-ifdef $(combo_2nd_arch_prefix)TARGET_arm_CFLAGS
-$(combo_2nd_arch_prefix)TARGET_arm_CFLAGS += $(GRAPHITE_FLAGS)
-else
-$(combo_2nd_arch_prefix)TARGET_arm_CFLAGS := $(GRAPHITE_FLAGS)
-endif
-
-ifdef $(combo_2nd_arch_prefix)TARGET_thumb_CFLAGS
-$(combo_2nd_arch_prefix)TARGET_thumb_CFLAGS += $(GRAPHITE_FLAGS)
-else
-$(combo_2nd_arch_prefix)TARGET_thumb_CFLAGS := $(GRAPHITE_FLAGS)
-endif
-
-ifdef $(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS
-$(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS += $(GRAPHITE_FLAGS)
-else
-$(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS := $(GRAPHITE_FLAGS)
-endif
-
-ifdef $(combo_2nd_arch_prefix)TARGET_RELEASE_CPPFLAGS
-$(combo_2nd_arch_prefix)TARGET_RELEASE_CPPFLAGS += $(GRAPHITE_FLAGS)
-else
-$(combo_2nd_arch_prefix)TARGET_RELEASE_CPPFLAGS := $(GRAPHITE_FLAGS)
-endif
-
-ifdef $(combo_var_prefix)GLOBAL_CFLAGS
-$(combo_var_prefix)GLOBAL_CFLAGS += $(GRAPHITE_FLAGS)
-else
-$(combo_var_prefix)GLOBAL_CFLAGS := $(GRAPHITE_FLAGS)
-endif
-
-ifdef $(combo_var_prefix)RELEASE_CFLAGS
-$(combo_var_prefix)RELEASE_CFLAGS += $(GRAPHITE_FLAGS)
-else
-$(combo_var_prefix)RELEASE_CFLAGS := $(GRAPHITE_FLAGS)
-endif 
-
-ifdef $(combo_var_prefix)GLOBAL_CPPFLAGS
-$(combo_var_prefix)GLOBAL_CPPFLAGS += $(GRAPHITE_FLAGS)
-else
-$(combo_var_prefix)GLOBAL_CPPFLAGS := $(GRAPHITE_FLAGS)
-endif
-endif
-=======
 GRAPHITE_FLAGS := \
 	-fgraphite \
 	-fgraphite-identity \
@@ -97,6 +37,8 @@ LOCAL_DISABLE_GRAPHITE := \
 	mdnsd \
 	libwebrtc_spl \
 	third_party_WebKit_Source_core_webcore_svg_gyp
+=======
+>>>>>>> 6f45ca9... Move flags and disable modules lists out of build (1/2)
 
 ifneq (1,$(words $(filter $(LOCAL_DISABLE_GRAPHITE),$(LOCAL_MODULE))))
   ifdef LOCAL_CONLYFLAGS
@@ -117,5 +59,4 @@ ifneq (1,$(words $(filter $(LOCAL_DISABLE_GRAPHITE),$(LOCAL_MODULE))))
     LOCAL_LDFLAGS  += $(GRAPHITE_FLAGS)
   endif
 endif
->>>>>>> c4083c1... un-LIQUIFY:
 #####
