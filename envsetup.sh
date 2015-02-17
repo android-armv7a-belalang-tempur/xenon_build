@@ -672,6 +672,55 @@ function tapas()
     printconfig
 }
 
+function saber()
+{
+    echo "SaberMod Optimization menu... pick your combo:"
+
+cmd=(dialog --separate-output --checklist "SaberMod Optimization menu, click to check a box" 22 76 16)
+options=(1 "Use Legacy GCC (for compatibility)" off
+         2 "Use -O3 GCC Optimizations" off
+         3 "Disable Graphite (for debuging)" off
+         4 "Use Krait Optimizations" off
+	 5 "Use GCC Optimizations" off
+	 6 "Use Loop Nesting Optimizations" off
+	 7 "Use Clang (for debugging)" off)
+choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
+for choice in $choices
+do
+    case $choice in
+        1)
+            echo "Legacy GCC Enabled :("
+	    export USE_LEGACY_GCC=true
+            ;;
+        2)
+            echo "-O3 Enabled!"
+	    export O3_OPTIMIZATIONS=true
+            ;;
+        3)
+            echo "Graphite Disabled :("
+	    export USE_GRAPHITE=false
+            ;;
+        4)
+            echo "Krait flags Enabled!"
+	    export USE_KRAIT=true
+            ;;
+	5)
+            echo "GCC Optimizations Enabled!"
+	    export USE_GCCONLY=true
+            ;;
+        6)
+            echo "Loop Nesting Optimizations Enabled!"
+	    export FLOOP_NEST_OPTIMIZE=true
+            ;;
+        7)
+            echo "Clang enabled :("
+	    export USE_CLANG=true
+            ;;
+    esac
+done
+    echo
+}
+
 function gettop
 {
     local TOPFILE=build/core/envsetup.mk
