@@ -97,6 +97,7 @@ else
   endif
 endif
 
+##########################################################################
 # Copyright (C) 2014-2015 The SaberMod Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -110,23 +111,61 @@ endif
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+##########################################################################
 
-# Include custom gcc flags.  Seperate them so they can be easily managed.
-
-# O3
-ifeq ($(strip $(O3_OPTIMIZATIONS)),true)
-  include $(BUILD_SYSTEM)/O3.mk
+# Disable Clang for a list of modules
+ifneq ($(strip $(USE_CLANG)),true)
+  include $(BUILD_SYSTEM)/noclang.mk
 endif
 
-# Do not use graphite on host modules or the clang compiler.
-ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
-  ifneq ($(strip $(LOCAL_CLANG)),true)
+# Add pthread support for non-Clang modules
+#ifdef ($(strip $(ENABLE_PTHREAD)),true)
+#  ifneq ($(strip $(LOCAL_CLANG)),true)
+    include $(BUILD_SYSTEM)/pthread.mk
+#  endif
+#endif
 
-    # If it gets this far enable graphite by default from here on out.
-    include $(BUILD_SYSTEM)/graphite.mk
+# Add some flags for krait
+#ifeq ($(strip $(USE_KRAIT)),true)
+  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
+   include $(BUILD_SYSTEM)/krait.mk
+  endif
+#endif
+
+# Add -O3 Optimizations
+#ifeq ($(strip $(O3_OPTIMIZATIONS)),true)
+  include $(BUILD_SYSTEM)/O3.mk
+#endif
+
+# Disable Clang for a list of modules
+ifneq ($(strip $(USE_CLANG)),true)
+  include $(BUILD_SYSTEM)/noclang.mk
+endif
+
+# Add some flags for krait
+ifeq ($(strip $(USE_KRAIT)),true)
+  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
+   include $(BUILD_SYSTEM)/krait.mk
   endif
 endif
+
+# Add some extra GCC pizzaz
+ifeq ($(strip $(USE_GCCONLY)),true)
+  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
+    ifneq ($(strip $(LOCAL_CLANG)),true)
+      include $(BUILD_SYSTEM)/gcconly.mk
+    endif
+  endif
+endif 
+
+# Don't use graphite on the clang compiler.
+ifneq ($(strip $(USE_GRAPHITE)),false)
+  ifneq ($(strip $(LOCAL_CLANG)),true)
+    # If it gets this far enable graphite by default from here on out.
+    include $(BUILD_SYSTEM)/graphite.mk
+ endif
+endif
+
 
 #end SaberMod
 
