@@ -566,9 +566,15 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   script.AppendExtra("ifelse(is_mounted(\"/system\"), unmount(\"/system\"));")
   device_specific.FullOTA_InstallBegin()
+  script.AppendExtra("ifelse(is_mounted(\"/data\"), unmount(\"/data\"));")
+  script.Mount("/data")
+  script.ValidateSignatures("data")
+  script.Unmount("/data")
 
   if OPTIONS.backuptool:
+    script.Mount("/system")
     script.RunBackup("backup")
+    script.Unmount("/system")
 
   system_progress = 0.75
 
@@ -584,6 +590,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   system_items = ItemSet("system", "META/filesystem_config.txt")
   script.ShowProgress(system_progress, 0)
+
   if block_based:
     # Full OTA is done as an "incremental" against an empty source
     # image.  This has the effect of writing new data from the package
@@ -639,9 +646,21 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
 
+  script.ValidateSignatures("cleanup")
+
   if OPTIONS.backuptool:
     script.ShowProgress(0.02, 10)
     script.RunBackup("restore")
+
+  if block_based:
+    script.Print("Flashing SuperSU...")
+    common.ZipWriteStr(output_zip, "supersu/supersu.zip",
+                   ""+input_zip.read("SYSTEM/addon.d/UPDATE-SuperSU.zip"))
+    script.Mount("/system")
+    script.FlashSuperSU()
+
+  if block_based:
+    script.AppendExtra("ifelse(is_mounted(\"/system\"), unmount(\"/system\"));")
 
   script.ShowProgress(0.05, 5)
   script.WriteRawImage("/boot", "boot.img")
@@ -652,6 +671,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   if OPTIONS.extra_script is not None:
     script.AppendExtra(OPTIONS.extra_script)
 
+  script.Mount("/system")
   script.UnmountAll()
 
   if OPTIONS.wipe_user_data:
@@ -878,6 +898,11 @@ set_stage("%(bcb_dev)s", "2/3");
 reboot_now("%(bcb_dev)s", "");
 else
 """ % bcb_dev)
+
+  # Verify the existing partitions.
+  system_diff.WriteVerifyScript(script)
+  if vendor_diff:
+    vendor_diff.WriteVerifyScript(script)
 
   script.Comment("---- start making changes here ----")
 
@@ -1405,7 +1430,7 @@ endif;
 
   if OPTIONS.verify and system_diff:
     script.Print("Remounting and verifying system partition files...")
-    script.Unmount("/system")
+    script.AppendExtra("ifelse(is_mounted(\"/system\"), unmount(\"/system\"));")
     script.Mount("/system")
     system_diff.EmitExplicitTargetVerification(script)
 
