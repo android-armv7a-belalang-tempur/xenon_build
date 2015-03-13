@@ -97,6 +97,7 @@ else
   endif
 endif
 
+ifeq ($(strip $(ELECTRIFY)),true)
 ##########################################################################
 # Copyright (C) 2014-2015 The SaberMod Project
 #
@@ -112,62 +113,41 @@ endif
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-
-# Disable Clang for a list of modules
-ifneq ($(strip $(USE_CLANG)),true)
-  include $(BUILD_SYSTEM)/noclang.mk
-endif
-
-# Add pthread support for non-Clang modules
-#ifdef ($(strip $(ENABLE_PTHREAD)),true)
-#  ifneq ($(strip $(LOCAL_CLANG)),true)
+  # Add pthread support for non-Clang modules
+  ifneq ($(strip $(ENABLE_PTHREAD)),false)
     include $(BUILD_SYSTEM)/pthread.mk
-#  endif
-#endif
-
-# Add some flags for krait
-#ifeq ($(strip $(USE_KRAIT)),true)
-  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
-   include $(BUILD_SYSTEM)/krait.mk
   endif
-#endif
 
-# Add -O3 Optimizations
-#ifeq ($(strip $(O3_OPTIMIZATIONS)),true)
-  include $(BUILD_SYSTEM)/O3.mk
-#endif
-
-# Disable Clang for a list of modules
-ifneq ($(strip $(USE_CLANG)),true)
-  include $(BUILD_SYSTEM)/noclang.mk
-endif
-
-# Add some flags for krait
-ifeq ($(strip $(USE_KRAIT)),true)
-  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
-   include $(BUILD_SYSTEM)/krait.mk
-  endif
-endif
-
-# Add some extra GCC pizzaz
-ifeq ($(strip $(USE_GCCONLY)),true)
-  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
-    ifneq ($(strip $(LOCAL_CLANG)),true)
-      include $(BUILD_SYSTEM)/gcconly.mk
+  # Add some CPU tuning flags
+  ifneq ($(strip $(TUNE_CPU)),false)
+    ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
+     include $(BUILD_SYSTEM)/tune.mk
     endif
   endif
-endif 
 
-# Don't use graphite on the clang compiler.
-ifneq ($(strip $(USE_GRAPHITE)),false)
-  ifneq ($(strip $(LOCAL_CLANG)),true)
-    # If it gets this far enable graphite by default from here on out.
-    include $(BUILD_SYSTEM)/graphite.mk
- endif
-endif
+  # Add -O3 Optimizations
+  ifneq ($(strip $(O3_OPTIMIZATIONS)),false)
+    include $(BUILD_SYSTEM)/O3.mk
+  endif
 
+  # Add some extra GCC pizzaz
+  ifeq ($(strip $(USE_GCCONLY)),true)
+    ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
+      ifneq ($(strip $(LOCAL_CLANG)),true)
+        include $(BUILD_SYSTEM)/gcconly.mk
+      endif
+    endif
+  endif 
 
+  # Don't use graphite on the clang compiler.
+  ifneq ($(strip $(USE_GRAPHITE)),false)
+    ifneq ($(strip $(LOCAL_CLANG)),true)
+      # If it gets this far enable graphite by default from here on out.
+      include $(BUILD_SYSTEM)/graphite.mk
+   endif
+  endif
 #end SaberMod
+endif
 
 # The following LOCAL_ variables will be modified in this file.
 # Because the same LOCAL_ variables may be used to define modules for both 1st arch and 2nd arch,

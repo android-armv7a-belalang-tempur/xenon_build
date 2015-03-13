@@ -14,21 +14,19 @@
 #
 # Adds PThread flags globally
 ifneq (1,$(words $(filter $(DISABLE_PTHREAD),$(LOCAL_MODULE))))
-  ifeq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
-    ifdef LOCAL_LDLIBS
-      LOCAL_LDLIBS += -ldl -lpthread -lrt
-    else
-      LOCAL_LDLIBS := -ldl -lpthread -lrt
-    endif
+  ifdef LOCAL_CFLAGS
+    LOCAL_CFLAGS += -pthread
+  else
+    LOCAL_CFLAGS := -pthread
   endif
-  LOCAL_CFLAGS += -pthread
-  LOCAL_CPPFLAGS += -pthread
+  ifdef LOCAL_CPPFLAGS
+    LOCAL_CPPFLAGS += -pthread
+  else
+    LOCAL_CPPFLAGS := -pthread
+  endif
 endif
 
-DISABLE_PTHREAD := \
-	libc \
-	libc_netbsd \
-	libc_common \
-	stubs_current_intermediates
 
+DISABLE_PTHREAD := \
+	libc_netbsd 
 

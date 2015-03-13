@@ -12,6 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+      # Disable some modules that break with -O3
+      # Add more modules if needed for devices in BoardConfig.mk
+      # LOCAL_DISABLE_O3 +=
+      LOCAL_DISABLE_O3 := \
+        libaudioflinger \
+        libwebviewchromium \
+        skia_skia_library_gyp
+
+      # -O3 flags and friends
+      O3_FLAGS := \
+        -O3 \
+        -Wno-error=array-bounds \
+        -Wno-error=strict-overflow
 
 ifneq (1,$(words $(filter $(LOCAL_DISABLE_O3),$(LOCAL_MODULE))))
   LOCAL_ARM_MODE := $(strip $(LOCAL_ARM_MODE))
