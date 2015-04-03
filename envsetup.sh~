@@ -162,6 +162,9 @@ function setpaths()
             toolchaindir=arm/arm-eabi-$targetgccversion/bin
             if [ -d "$gccprebuiltdir/$toolchaindir" ]; then
                  export ARM_EABI_TOOLCHAIN="$gccprebuiltdir/$toolchaindir"
+<<<<<<< HEAD
+                 ANDROID_KERNEL_TOOLCHAIN_PATH="$ARM_EABI_TOOLCHAIN":
+=======
                  export ANDROID_KERNEL_TOOLCHAIN_PATH="$ARM_EABI_TOOLCHAIN":
             fi
             ;;
@@ -171,6 +174,7 @@ function setpaths()
             if [ -d "$gccprebuiltdir/$toolchaindir" ]; then
                  export AARCH64_TOOLCHAIN="$gccprebuiltdir/$toolchaindir"
                  export ANDROID_KERNEL_TOOLCHAIN_PATH="$AARCH64_TOOLCHAIN":
+>>>>>>> 4c1bf15... arm64: update changes in preperation of new toolchain's:
             fi
             ;;
         *)
