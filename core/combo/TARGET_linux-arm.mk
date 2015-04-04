@@ -34,6 +34,16 @@ ifeq ($(strip $(TARGET_$(combo_2nd_arch_prefix)ARCH_VARIANT)),)
 TARGET_$(combo_2nd_arch_prefix)ARCH_VARIANT := armv5te
 endif
 
+ifeq ($(ELECTRIFY),true)
+########################
+##       DEFINE       ##
+##  CUSTOM TOOLCHAINS ##
+##        HERE        ##
+########################
+TARGET_GCC_ANDROID := 4.8
+TARGET_GCC_KERNEL  := 4.9
+endif
+
 # Decouple NDK library selection with platform compiler version
 ifeq ($(ELECTRIFY),true)
 $(combo_2nd_arch_prefix)TARGET_NDK_GCC_VERSION := 4.9
@@ -41,10 +51,17 @@ else
 $(combo_2nd_arch_prefix)TARGET_NDK_GCC_VERSION := 4.8
 endif
 
-ifeq ($(strip $(TARGET_GCC_VERSION_EXP)),)
-$(combo_2nd_arch_prefix)TARGET_GCC_VERSION := 4.8
+ifeq ($(strip $(TARGET_GCC_ANDROID)),)
+$(combo_2nd_arch_prefix)TARGET_AND_GCC_VERSION := 4.8
 else
-$(combo_2nd_arch_prefix)TARGET_GCC_VERSION := $(TARGET_GCC_VERSION_EXP)
+$(combo_2nd_arch_prefix)TARGET_AND_GCC_VERSION := $(TARGET_GCC_ANDROID)
+endif
+
+# Decouple Kernel compiler version from Android compiler version
+ifeq ($(strip $(TARGET_GCC_KERNEL)),)
+$(combo_2nd_arch_prefix)TARGET_KERNEL_GCC_VERSION := 4.9
+else
+$(combo_2nd_arch_prefix)TARGET_KERNEL_GCC_VERSION := $(TARGET_GCC_KERNEL)
 endif
 
 TARGET_ARCH_SPECIFIC_MAKEFILE := $(BUILD_COMBOS)/arch/$(TARGET_$(combo_2nd_arch_prefix)ARCH)/$(TARGET_$(combo_2nd_arch_prefix)ARCH_VARIANT).mk
@@ -124,11 +141,9 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += \
 # "-Wall -Werror" due to a commom idiom "ALOGV(mesg)" where ALOGV is turned
 # into no-op in some builds while mesg is defined earlier. So we explicitly
 # disable "-Wunused-but-set-variable" here.
-ifeq ($(ELECTRIFY),true)
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -fno-builtin-sin \
 						-fno-strict-volatile-bitfields \
 						-fstrict-aliasing
-endif
 
 # This is to avoid the dreaded warning compiler message:
 #   note: the mangling of 'va_list' has changed in GCC 4.4
