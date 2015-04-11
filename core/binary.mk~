@@ -103,6 +103,8 @@ ifeq ($(ELECTRIFY),true)
 	include $(BUILD_SYSTEM)/strict.mk
 endif
 
+<<<<<<< HEAD
+=======
 # Extra SaberMod C flags for gcc and clang
 # These are most likely arch specific do no bother including the host compiler.
 ifdef EXTRA_SABERMOD_CFLAGS
