@@ -116,6 +116,28 @@ ifeq ($(strip $(ELECTRIFY)),true)
   # Add pthread support
   ifneq ($(strip $(ENABLE_PTHREAD)),false)
     include $(BUILD_SYSTEM)/pthread.mk
+
+  # Extra SaberMod C flags for gcc and clang
+  # These are most likely arch specific do no bother including the host compiler.
+  ifdef EXTRA_SABERMOD_CFLAGS
+    ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
+      ifneq ($(strip $(LOCAL_CLANG)),true)
+        ifdef LOCAL_CFLAGS
+          LOCAL_CFLAGS += $(EXTRA_SABERMOD_GCC_CFLAGS)
+        else
+          LOCAL_CFLAGS := $(EXTRA_SABERMOD_GCC_CFLAGS)
+        endif
+        ifdef EXTRA_SABERMOD_AND_GCC_CFLAGS
+          LOCAL_CFLAGS += $(EXTRA_SABERMOD_AND_GCC_CFLAGS)
+        endif
+      else
+        ifdef LOCAL_CFLAGS
+          LOCAL_CFLAGS += $(EXTRA_SABERMOD_CLANG_CFLAGS)
+        else
+          LOCAL_CFLAGS := $(EXTRA_SABERMOD_CLANG_CFLAGS)
+        endif
+      endif
+    endif
   endif
 
   # Add some CPU tuning flags
@@ -128,7 +150,6 @@ ifeq ($(strip $(ELECTRIFY)),true)
   # Add -O3 Optimizations
   ifneq ($(strip $(O3_OPTIMIZATIONS)),false)
     include $(BUILD_SYSTEM)/O3.mk
-  endif
 
   # Don't use graphite on the clang compiler.
   ifneq ($(strip $(USE_GRAPHITE)),false)
