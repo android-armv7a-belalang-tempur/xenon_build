@@ -120,17 +120,25 @@ ifeq ($(strip $(ELECTRIFY)),true)
 
 # Extra SaberMod C flags for gcc and clang
 # These are most likely arch specific, so do not bother including the host compiler.
-ifdef EXTRA_SABERMOD_CFLAGS
+ifdef EXTRA_SABERMOD_GCC_CFLAGS
   ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
     ifneq ($(strip $(LOCAL_CLANG)),true)
       ifdef LOCAL_CFLAGS
         LOCAL_CFLAGS += $(EXTRA_SABERMOD_GCC_CFLAGS)
       else
-        ifdef LOCAL_CFLAGS
-          LOCAL_CFLAGS += $(EXTRA_SABERMOD_CLANG_CFLAGS)
-        else
-          LOCAL_CFLAGS := $(EXTRA_SABERMOD_CLANG_CFLAGS)
-        endif
+        LOCAL_CFLAGS := $(EXTRA_SABERMOD_GCC_CFLAGS)
+      endif
+    endif
+  endif
+endif
+
+ifdef EXTRA_SABERMOD_CLANG_CFLAGS
+  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
+    ifeq ($(strip $(LOCAL_CLANG)),true)
+      ifdef LOCAL_CFLAGS
+        LOCAL_CFLAGS += $(EXTRA_SABERMOD_CLANG_CFLAGS)
+      else
+        LOCAL_CFLAGS := $(EXTRA_SABERMOD_CLANG_CFLAGS)
       endif
     endif
   endif
