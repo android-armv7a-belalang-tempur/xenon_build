@@ -97,35 +97,25 @@ else
   endif
 endif
 
-ifeq ($(ELECTRIFY),true)
-	# Include custom gcc flags.  Seperate them so they can be easily managed.
-	include $(BUILD_SYSTEM)/graphite.mk
-	include $(BUILD_SYSTEM)/strict.mk
-endif
+##########################################################################
+# Copyright (C) 2014-2015 The SaberMod Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##########################################################################
 
-# Extra SaberMod C flags for gcc and clang
-# These are most likely arch specific, so do not bother including the host compiler.
-ifdef EXTRA_SABERMOD_GCC_CFLAGS
-  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
-    ifneq ($(strip $(LOCAL_CLANG)),true)
-      ifdef LOCAL_CFLAGS
-        LOCAL_CFLAGS += $(EXTRA_SABERMOD_GCC_CFLAGS)
-      else
-        LOCAL_CFLAGS := $(EXTRA_SABERMOD_GCC_CFLAGS)
-      endif
-    endif
-  endif
-endif
-ifdef EXTRA_SABERMOD_CLANG_CFLAGS
-  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
-    ifeq ($(strip $(LOCAL_CLANG)),true)
-      ifdef LOCAL_CFLAGS
-        LOCAL_CFLAGS += $(EXTRA_SABERMOD_CLANG_CFLAGS)
-      else
-        LOCAL_CFLAGS := $(EXTRA_SABERMOD_CLANG_CFLAGS)
-      endif
-    endif
-  endif
+# O3
+ifeq ($(strip $(O3_OPTIMIZATIONS)),true)
+  include $(BUILD_SYSTEM)/O3.mk
 endif
 
 
@@ -136,11 +126,14 @@ ifeq ($(strip $(ENABLE_PTHREAD)),true)
 endif
 
 # Do not use graphite on host modules or the clang compiler.
-ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
-  ifneq ($(strip $(LOCAL_CLANG)),true)
+# Also do not bother using on darwin.
+ifeq ($(HOST_OS),linux)
+  ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
+    ifneq ($(strip $(LOCAL_CLANG)),true)
 
-    # If it gets this far enable graphite by default from here on out.
-    include $(BUILD_SYSTEM)/graphite.mk
+      # If it gets this far enable graphite by default from here on out.
+      include $(BUILD_SYSTEM)/graphite.mk
+    endif
   endif
 endif
 
@@ -161,7 +154,6 @@ endif
 
 #end SaberMod
 
->>>>>>> 5698807... MOAR SaberMod flags (2/3)
 # The following LOCAL_ variables will be modified in this file.
 # Because the same LOCAL_ variables may be used to define modules for both 1st arch and 2nd arch,
 # we can't modify them in place.
