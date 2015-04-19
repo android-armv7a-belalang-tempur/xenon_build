@@ -125,6 +125,11 @@ function setpaths()
     targetgccversion=$(get_build_var TARGET_GCC_VERSION)
     targetgccversion2=$(get_build_var 2ND_TARGET_GCC_VERSION)
     export TARGET_GCC_VERSION=$targetgccversion
+    targetgccandroid=$(get_build_var TARGET_AND_GCC_VERSION)
+    targetgcckernel=$(get_build_var TARGET_KERNEL_GCC_VERSION)
+    export TARGET_AND_GCC_VERSION=$targetgccandroid
+    export TARGET_KERNEL_GCC_VERSION=$targetgcckernel
+
 
     # The gcc toolchain does not exists for windows/cygwin. In this case, do not reference it.
     export ANDROID_TOOLCHAIN=
@@ -135,7 +140,7 @@ function setpaths()
             ;;
         x86_64) toolchaindir=x86/x86_64-linux-android-$targetgccversion/bin
             ;;
-        arm) toolchaindir=arm/arm-linux-androideabi-$targetgccversion/bin
+        arm) toolchaindir=arm/arm-linux-androideabi-$targetgccvedrsion/bin
             ;;
         arm64) toolchaindir=aarch64/aarch64-linux-android-$targetgccversion/bin;
                toolchaindir2=arm/arm-linux-androideabi-$targetgccversion2/bin

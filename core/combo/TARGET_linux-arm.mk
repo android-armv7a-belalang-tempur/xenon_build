@@ -40,7 +40,7 @@ ifeq ($(ELECTRIFY),true)
 ##  CUSTOM TOOLCHAINS ##
 ##        HERE        ##
 ########################
-TARGET_GCC_ANDROID := 4.8
+TARGET_GCC_ANDROID := SM-4.8
 TARGET_GCC_KERNEL  := 4.9
 endif
 
@@ -64,6 +64,12 @@ else
 $(combo_2nd_arch_prefix)TARGET_KERNEL_GCC_VERSION := $(TARGET_GCC_KERNEL)
 endif
 
+ifeq ($(strip $(TARGET_GCC_VERSION_EXP)),)
+$(combo_2nd_arch_prefix)TARGET_GCC_VERSION := 4.8
+else
+$(combo_2nd_arch_prefix)TARGET_GCC_VERSION := $(TARGET_GCC_VERSION_EXP)
+endif
+
 TARGET_ARCH_SPECIFIC_MAKEFILE := $(BUILD_COMBOS)/arch/$(TARGET_$(combo_2nd_arch_prefix)ARCH)/$(TARGET_$(combo_2nd_arch_prefix)ARCH_VARIANT).mk
 ifeq ($(strip $(wildcard $(TARGET_ARCH_SPECIFIC_MAKEFILE))),)
 $(error Unknown ARM architecture version: $(TARGET_$(combo_2nd_arch_prefix)ARCH_VARIANT))
@@ -74,7 +80,7 @@ include $(BUILD_SYSTEM)/combo/fdo.mk
 
 # You can set TARGET_AND_TOOLS_PREFIX to get gcc from somewhere else
 ifeq ($(strip $($(combo_2nd_arch_prefix)TARGET_AND_TOOLS_PREFIX)),)
-$(combo_2nd_arch_prefix)TARGET_AND_TOOLCHAIN_ROOT := prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/arm-linux-androideabi-$($(combo_2nd_arch_prefix)TARGET_AND_GCC_VERSION)
+$(combo_2nd_arch_prefix)TARGET_AND_TOOLCHAIN_ROOT := prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/arm-linux-androideabi-$($(combo_2nd_arch_prefix)TARGET_GCC_VERSION)
 $(combo_2nd_arch_prefix)TARGET_AND_TOOLS_PREFIX := $($(combo_2nd_arch_prefix)TARGET_AND_TOOLCHAIN_ROOT)/bin/arm-linux-androideabi-
 endif
 
@@ -164,14 +170,14 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_LDFLAGS += \
 			-Wl,--icf=safe \
 			$(arch_variant_ldflags)
 
-$(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -mthumb-interwork
+$(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += 
+#-mthumb-interwork
 
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
 
 # More flags/options can be added here
 $(combo_2nd_arch_prefix)TARGET_RELEASE_CFLAGS := \
 			-DNDEBUG \
-			-g \
 			-Wstrict-aliasing=2 \
 			-fgcse-after-reload \
 			-frerun-cse-after-loop \

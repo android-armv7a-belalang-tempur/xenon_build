@@ -97,7 +97,7 @@ else
   endif
 endif
 
-ifeq ($(strip $(ELECTRIFY)),true)
+ifneq ($(strip $(ELECTRIFY)),true)
 ##########################################################################
 # Copyright (C) 2014-2015 The SaberMod Project
 #

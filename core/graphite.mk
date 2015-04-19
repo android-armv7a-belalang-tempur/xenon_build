@@ -25,6 +25,7 @@ ifeq ($(strip $(UNAME)),Linux)
       -floop-interchange \
       -floop-strip-mine \
       -floop-block
+endif
 
     # Legacy gcc doesn't understand this flag
     ifneq ($(strip $(USE_LEGACY_GCC)),true)
