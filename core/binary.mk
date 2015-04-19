@@ -116,6 +116,10 @@ ifeq ($(strip $(ELECTRIFY)),true)
   # Add pthread support
   ifneq ($(strip $(ENABLE_PTHREAD)),false)
     include $(BUILD_SYSTEM)/pthread.mk
+  endif
+
+  # Disable -Werror
+  include $(BUILD_SYSTEM)/werror.mk
 
   # Extra sabermod variables
   include $(BUILD_SYSTEM)/extra.mk
@@ -130,6 +134,7 @@ ifeq ($(strip $(ELECTRIFY)),true)
   # Add -O3 Optimizations
   ifneq ($(strip $(O3_OPTIMIZATIONS)),false)
     include $(BUILD_SYSTEM)/O3.mk
+  endif
 
   # Don't use graphite on the clang compiler.
   ifneq ($(strip $(USE_GRAPHITE)),false)
