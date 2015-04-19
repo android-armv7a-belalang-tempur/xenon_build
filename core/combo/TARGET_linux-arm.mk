@@ -57,11 +57,22 @@ else
 $(combo_2nd_arch_prefix)TARGET_AND_GCC_VERSION := $(TARGET_GCC_ANDROID)
 endif
 
+<<<<<<< HEAD
 # Decouple Kernel compiler version from Android compiler version
 ifeq ($(strip $(TARGET_GCC_KERNEL)),)
 $(combo_2nd_arch_prefix)TARGET_KERNEL_GCC_VERSION := 4.9
 else
 $(combo_2nd_arch_prefix)TARGET_KERNEL_GCC_VERSION := $(TARGET_GCC_KERNEL)
+endif
+
+# Allow a second arch combo to override the ROM toolchain version
+ifdef 2ND_TARGET_SM_AND_VERSION
+$(combo_2nd_arch_prefix)TARGET_AND_GCC_VERSION := $(2ND_TARGET_SM_AND)
+endif
+
+# Allow a second arch combo to override the NDK library selection
+ifdef 2ND_TARGET_NDK_VERSION
+$(combo_2nd_arch_prefix)TARGET_NDK_GCC_VERSION := $(2ND_TARGET_NDK_VERSION)
 endif
 
 TARGET_ARCH_SPECIFIC_MAKEFILE := $(BUILD_COMBOS)/arch/$(TARGET_$(combo_2nd_arch_prefix)ARCH)/$(TARGET_$(combo_2nd_arch_prefix)ARCH_VARIANT).mk
