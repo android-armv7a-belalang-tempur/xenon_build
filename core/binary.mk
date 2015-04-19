@@ -99,6 +99,16 @@ endif
 
 ifeq ($(strip $(ELECTRIFY)),true)
   include $(BUILD_SYSTEM)/sabermod/sm.mk
+
+  # Disable -Werror
+  include $(BUILD_SYSTEM)/werror.mk
+
+  # Add some CPU tuning flags
+  ifneq ($(strip $(TUNE_CPU)),false)
+    ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
+     include $(BUILD_SYSTEM)/tune.mk
+    endif
+  endif
 endif
 
 # The following LOCAL_ variables will be modified in this file.

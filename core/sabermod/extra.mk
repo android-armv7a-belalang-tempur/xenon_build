@@ -12,7 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Extra SaberMod C flags for gcc and clang
+# Extra SaberMod GCC C flags for the ROM and Kernel
+export EXTRA_SABERMOD_GCC_CFLAGS := \
+         -ftree-loop-distribution \
+         -ftree-loop-if-convert \
+         -ftree-loop-im \
+         -ftree-loop-ivcanon \
+         -fprefetch-loop-arrays \
+         -ftree-vectorize \
+         -mvectorize-with-neon-quad \
+	 -fweb \
+         -pipe
+
+# Extra SaberMod CLANG C flags
+EXTRA_SABERMOD_CLANG_CFLAGS := \
+  -fprefetch-loop-arrays \
+  -ftree-vectorize \
+  -fweb \
+  -pipe
+
 # Seperated by arch, clang and host
 
 ifdef EXTRA_SABERMOD_GCC_CFLAGS
