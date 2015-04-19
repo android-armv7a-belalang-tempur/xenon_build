@@ -113,7 +113,7 @@ ifeq ($(strip $(ELECTRIFY)),true)
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-  # Add pthread support for non-Clang modules
+  # Add pthread support
   ifneq ($(strip $(ENABLE_PTHREAD)),false)
     include $(BUILD_SYSTEM)/pthread.mk
   endif
@@ -130,20 +130,13 @@ ifeq ($(strip $(ELECTRIFY)),true)
     include $(BUILD_SYSTEM)/O3.mk
   endif
 
-  # Add some extra GCC pizzaz
-  ifeq ($(strip $(USE_GCCONLY)),true)
-    ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
-      ifneq ($(strip $(LOCAL_CLANG)),true)
-        include $(BUILD_SYSTEM)/gcconly.mk
-      endif
-    endif
-  endif 
-
   # Don't use graphite on the clang compiler.
   ifneq ($(strip $(USE_GRAPHITE)),false)
     ifneq ($(strip $(LOCAL_CLANG)),true)
+      ifneq ($(strip $(LOCAL_IS_HOST_MODULE)),true)
       # If it gets this far enable graphite by default from here on out.
       include $(BUILD_SYSTEM)/graphite.mk
+     endif
    endif
   endif
 #end SaberMod
