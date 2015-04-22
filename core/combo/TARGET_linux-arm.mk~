@@ -148,12 +148,8 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += \
 # into no-op in some builds while mesg is defined earlier. So we explicitly
 # disable "-Wunused-but-set-variable" here.
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -fno-builtin-sin \
-<<<<<<< HEAD
-						-fno-strict-volatile-bitfields \
+				-fno-strict-volatile-bitfields \
 						-fstrict-aliasing
-=======
-			-fno-strict-volatile-bitfields
->>>>>>> a2c05ea... ARM: Enable -fno-builtin-sin and -fno-strict-volatile-bitfields by default:
 
 # This is to avoid the dreaded warning compiler message:
 #   note: the mangling of 'va_list' has changed in GCC 4.4
@@ -174,8 +170,17 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_LDFLAGS += \
 			-Wl,--icf=safe \
 			$(arch_variant_ldflags)
 
+<<<<<<< HEAD
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += 
 #-mthumb-interwork
+=======
+# If -O3 optimizations is turned on but disabled for thumb, set a arm mode for globabl flags instead of thumb.
+ifneq ($(strip $(O3_OPTIMIZATIONS))-$(strip $(DISABLE_O3_OPTIMIZATIONS_THUMB)),true-true)
+$(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -mthumb-interwork
+else
+$(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -marm
+endif
+>>>>>>> 0c0357c... -O3 optimzations: More improvements (2/2)
 
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
 
@@ -190,7 +195,6 @@ $(combo_2nd_arch_prefix)TARGET_RELEASE_CFLAGS := \
 libc_root := bionic/libc
 libm_root := bionic/libm
 libstdc++_root := bionic/libstdc++
-
 
 ## on some hosts, the target cross-compiler is not available so do not run this command
 ifneq ($(wildcard $($(combo_2nd_arch_prefix)TARGET_CC)),)
