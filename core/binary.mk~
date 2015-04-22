@@ -97,6 +97,7 @@ else
   endif
 endif
 
+<<<<<<< HEAD
 ##########################################################################
 # Copyright (C) 2014-2015 The SaberMod Project
 #
@@ -113,9 +114,20 @@ endif
 # limitations under the License.
 ##########################################################################
 
-# O3
+# O3 optimzations
+# To turn on set "O3_OPTIMIZATIONS := true" in device makefile.
+# To disable -O3 optimizations on thumb set "DISABLE_O3_OPTIMIZATIONS_THUMB := true" in device makefile.
+# DISABLE_O3_OPTIMIZATIONS_THUMB should be dependent on "O3_OPTIMIZATIONS := true", otherwise it's useless.
+# LOCAL_O3_OPTIMIZATIONS_MODE is for other flag configurations to use, not for device configurations.
+# Big thanks to Joe Maples for the arm mode to replace thumb mode, and Sebastian Jena for the unveiling the arm thumb mode.
 ifeq ($(strip $(O3_OPTIMIZATIONS)),true)
-  include $(BUILD_SYSTEM)/O3.mk
+  ifneq ($(strip $(LOCAL_ARM_MODE))-$(strip $(DISABLE_O3_OPTIMIZATIONS_THUMB)),thumb-true)
+    include $(BUILD_SYSTEM)/O3.mk
+  else
+    LOCAL_O3_OPTIMIZATIONS_MODE := off
+  endif
+else
+  LOCAL_O3_OPTIMIZATIONS_MODE := off
 endif
 
 
@@ -153,6 +165,9 @@ ifdef MAYBE_UNINITIALIZED
 endif
 
 #end SaberMod
+=======
+include $(BUILD_SYSTEM)/sm.mk
+>>>>>>> f97afe0... sm.mk: Bug fix for aosp and strict-aliasing (2/2)
 
 # The following LOCAL_ variables will be modified in this file.
 # Because the same LOCAL_ variables may be used to define modules for both 1st arch and 2nd arch,
