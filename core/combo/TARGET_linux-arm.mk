@@ -170,11 +170,10 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_LDFLAGS += \
 			-Wl,--icf=safe \
 			$(arch_variant_ldflags)
 
-# If -O3 optimizations is turned on but disabled for thumb, set a arm mode for globabl flags instead of thumb.
-ifneq ($(strip $(O3_OPTIMIZATIONS))-$(strip $(DISABLE_O3_OPTIMIZATIONS_THUMB)),true-true)
-$(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -mthumb-interwork
+ifneq ($(strip $(ENABLE_SABERMOD_ARM_MODE)),true)
+  $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -mthumb-interwork
 else
-$(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -marm
+  $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -marm
 endif
 
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden

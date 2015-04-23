@@ -99,8 +99,13 @@ $(combo_2nd_arch_prefix)TARGET_STRIP := $($(combo_2nd_arch_prefix)TARGET_TOOLS_P
 
 $(combo_2nd_arch_prefix)TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
+<<<<<<< HEAD
 $(combo_2nd_arch_prefix)TARGET_arm_CFLAGS :=  -marm \
 			-O2 \
+=======
+# Modules can choose to compile some source as arm.
+$(combo_2nd_arch_prefix)TARGET_arm_CFLAGS :=    -O2 \
+>>>>>>> 6b8b804... SaberMod ARM Mode (2/2)
                         -fomit-frame-pointer \
                         -fstrict-aliasing    \
                         -funswitch-loops
@@ -170,17 +175,11 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_LDFLAGS += \
 			-Wl,--icf=safe \
 			$(arch_variant_ldflags)
 
-<<<<<<< HEAD
-$(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += 
-#-mthumb-interwork
-=======
-# If -O3 optimizations is turned on but disabled for thumb, set a arm mode for globabl flags instead of thumb.
-ifneq ($(strip $(O3_OPTIMIZATIONS))-$(strip $(DISABLE_O3_OPTIMIZATIONS_THUMB)),true-true)
-$(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -mthumb-interwork
+ifneq ($(strip $(ENABLE_SABERMOD_ARM_MODE)),true)
+  $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -mthumb-interwork
 else
-$(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -marm
+  $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -marm
 endif
->>>>>>> 0c0357c... -O3 optimzations: More improvements (2/2)
 
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
 
