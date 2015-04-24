@@ -57,20 +57,9 @@ else
 $(combo_2nd_arch_prefix)TARGET_AND_GCC_VERSION := $(TARGET_GCC_ANDROID)
 endif
 
-<<<<<<< HEAD
 # Decouple Kernel compiler version from Android compiler version
 ifeq ($(strip $(TARGET_GCC_KERNEL)),)
 $(combo_2nd_arch_prefix)TARGET_KERNEL_GCC_VERSION := 4.9
-=======
-# Allow a second arch combo to override the ROM toolchain version
-ifdef 2ND_TARGET_SM_AND
-$(combo_2nd_arch_prefix)TARGET_AND_GCC_VERSION := $(2ND_TARGET_SM_AND)
-endif
-
-# Decouple kernel compiler version from android compiler version
-ifeq ($(strip $(TARGET_SM_KERNEL)),)
-$(combo_2nd_arch_prefix)TARGET_KERNEL_GCC_VERSION := $($(combo_2nd_arch_prefix)TARGET_AND_GCC_VERSION)
->>>>>>> 2b8c84d... ARM: Allow arm64 filter to override the ROM toolchain version
 else
 $(combo_2nd_arch_prefix)TARGET_KERNEL_GCC_VERSION := $(TARGET_GCC_KERNEL)
 endif
@@ -159,8 +148,12 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += \
 # into no-op in some builds while mesg is defined earlier. So we explicitly
 # disable "-Wunused-but-set-variable" here.
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -fno-builtin-sin \
+<<<<<<< HEAD
 						-fno-strict-volatile-bitfields \
 						-fstrict-aliasing
+=======
+			-fno-strict-volatile-bitfields
+>>>>>>> a2c05ea... ARM: Enable -fno-builtin-sin and -fno-strict-volatile-bitfields by default:
 
 # This is to avoid the dreaded warning compiler message:
 #   note: the mangling of 'va_list' has changed in GCC 4.4
@@ -308,4 +301,3 @@ $(hide) $(PRIVATE_CXX) -nostdlib -Bstatic \
 	-Wl,--end-group \
 	$(if $(filter true,$(PRIVATE_NO_CRT)),,$(PRIVATE_TARGET_CRTEND_O))
 endef
-

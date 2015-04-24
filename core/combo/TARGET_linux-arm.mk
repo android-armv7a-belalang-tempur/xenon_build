@@ -148,7 +148,7 @@ $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += \
 # into no-op in some builds while mesg is defined earlier. So we explicitly
 # disable "-Wunused-but-set-variable" here.
 $(combo_2nd_arch_prefix)TARGET_GLOBAL_CFLAGS += -fno-builtin-sin \
-						-fno-strict-volatile-bitfields \
+				-fno-strict-volatile-bitfields \
 						-fstrict-aliasing
 
 # This is to avoid the dreaded warning compiler message:
